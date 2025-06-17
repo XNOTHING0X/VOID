@@ -412,6 +412,7 @@ body {
                 const modalTitle = document.getElementById('modal-title');
                 modalTitle.textContent = title;
                 input.value = defaultName;
+                document.getElementById('context-menu').style.display = 'none';
                 modal.style.display = 'flex';
                 setTimeout(() => modal.classList.add('show'), 10);
                 input.focus();
@@ -613,6 +614,11 @@ body {
             menuItems.forEach(item => {
                 item.addEventListener('click', () => {
                     const action = item.getAttribute('data-action');
+                    contextMenu.classList.remove('show');
+                    setTimeout(() => {
+                        contextMenu.style.display = 'none';
+                        contextMenuTargetTabId = null;
+                    }, 300);
                     switch (action) {
                         case 'delete': deleteTabFromMenu(); break;
                         case 'rename': renameTabFromMenu(); break;
@@ -629,7 +635,6 @@ body {
             const tabIdToDelete = contextMenuTargetTabId || activeTabId;
             if (tabIdToDelete) {
                 closeTab(tabIdToDelete);
-                document.getElementById('context-menu').style.display = 'none';
                 contextMenuTargetTabId = null;
             }
         }
@@ -637,13 +642,11 @@ body {
         async function renameTabFromMenu() {
             if (!contextMenuTargetTabId) return;
             await renameTab(contextMenuTargetTabId);
-            document.getElementById('context-menu').style.display = 'none';
             contextMenuTargetTabId = null;
         }
 
         async function addTabFromMenu() {
             await createTab();
-            document.getElementById('context-menu').style.display = 'none';
             contextMenuTargetTabId = null;
         }
 
@@ -813,10 +816,10 @@ body {
                                 setTimeout(() => {
                                     contextMenu.style.display = 'none';
                                     contextMenuTargetTabId = null;
-                                }, 200);
+                                }, 300);
                             }
                         });
-                        setInterval(() => saveTabs(), 500); // Reduced frequency to prevent performance issues
+                        setInterval(() => saveTabs(), 500);
                     } catch (error) {
                         console.error('Monaco editor initialization error:', error);
                     }
@@ -835,13 +838,11 @@ body {
             try {
                 if (!isAttached) {
                     console.warn('Script not attached');
-                    document.getElementById('context-menu').style.display = 'none';
                     return;
                 }
                 const script = editor.getValue().trim();
                 if (!script) {
                     console.warn('No script to execute');
-                    document.getElementById('context-menu').style.display = 'none';
                     return;
                 }
                 fetch('/1', {
@@ -852,18 +853,14 @@ body {
                     body: 'script=' + encodeURIComponent(script)
                 }).then(response => {
                     if (!response.ok) throw new Error(`Execute failed: ${response.status}`);
-                    document.getElementById('context-menu').style.display = 'none';
                     return response.json();
                 }).then(data => {
                     console.log('Script executed successfully:', data);
-                    document.getElementById('context-menu').style.display = '';
                 }).catch(error => {
                     console.error('Error executing script:', error);
-                    document.getElementById('context-menu').style.display = 'none';
                 });
             } catch (error) {
                 console.error('Execute script error:', error);
-                document.getElementById('context-menu').style.display = 'none';
             }
         }
 
@@ -876,11 +873,9 @@ body {
                         tabData.content = '';
                     }
                     saveTabs();
-                    document.getElementById('context-menu').style.display = 'none';
                 }
             } catch (error) {
                 console.error('Error clearing text:', error);
-                document.getElementById('context-menu').style.display = 'none';
             }
         }
 
@@ -895,17 +890,14 @@ body {
                     }
                     isAttached = true;
                     console.log('Script attached successfully');
-                    document.getElementById('context-menu').style.display = 'none';
                     return response.json();
                 }).catch(error => {
                     isAttached = false;
                     console.error('Error attaching script:', error);
-                    document.getElementById('context-menu').style.display = 'none';
                 });
             } catch (error) {
                 isAttached = false;
                 console.error('Attach script error:', error);
-                document.getElementById('context-menu').style.display = 'none';
             }
         }
 
