@@ -10,7 +10,6 @@ if not hasSentFlag then
 end
 if not hasSentFlag.Value then
     local StarterGui = game:GetService("StarterGui")
-    local StarterGui = game:GetService("StarterGui")
     StarterGui:SetCore("SendNotification", {
         Title = "",
         Text = "",
