@@ -15,20 +15,20 @@ if not hasSentFlag.Value then
         Title = "",
         Text = "",
         Duration = 15.4,
-        Icon = "rbxassetid://129144589935022"
+        Icon = "rbxassetid://80068985696207"
 
     })
     StarterGui:SetCore("SendNotification", {
         Title = "",
         Text = "",
         Duration = 15.4,
-        Icon = "rbxassetid://129144589935022"
+        Icon = "rbxassetid://80068985696207"
     })
     StarterGui:SetCore("SendNotification", {
         Title = "",
         Text = "",
         Duration = 15.3,
-        Icon = "rbxassetid://129144589935022"
+        Icon = "rbxassetid://80068985696207"
     })
     hasSentFlag.Value = true
 end
