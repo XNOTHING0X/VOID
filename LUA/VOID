@@ -8,18 +8,18 @@ if not X then
         Title = "",
         Text = "",
         Duration = 15.4,
-        Icon = "rbxassetid://133747779981789"
+        Icon = "rbxassetid://129144589935022"
     })
     StarterGui:SetCore("SendNotification", {
         Title = "",
         Text = "",
         Duration = 15.4,
-        Icon = "rbxassetid://133747779981789"
+        Icon = "rbxassetid://129144589935022"
     })
     StarterGui:SetCore("SendNotification", {
         Title = "",
         Text = "",
         Duration = 15.3,
-        Icon = "rbxassetid://133747779981789"
+        Icon = "rbxassetid://129144589935022"
     })
 end
