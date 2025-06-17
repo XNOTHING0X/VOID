@@ -1,0 +1,25 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
+local StarterGui = game:GetService("StarterGui")
+local X = false
+if not X then
+    X = true
+    StarterGui:SetCore("SendNotification", {
+        Title = "",
+        Text = "",
+        Duration = 15.4,
+        Icon = "rbxassetid://133747779981789"
+    })
+    StarterGui:SetCore("SendNotification", {
+        Title = "",
+        Text = "",
+        Duration = 15.4,
+        Icon = "rbxassetid://133747779981789"
+    })
+    StarterGui:SetCore("SendNotification", {
+        Title = "",
+        Text = "",
+        Duration = 15.3,
+        Icon = "rbxassetid://133747779981789"
+    })
+end
