@@ -1,10 +1,10 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
-local hasSentFlag = ReplicatedStorage:FindFirstChild(" ")
+local hasSentFlag = ReplicatedStorage:FindFirstChild("VOID")
 if not hasSentFlag then
     hasSentFlag = Instance.new("BoolValue")
-    hasSentFlag.Name = " "
+    hasSentFlag.Name = "VOID"
     hasSentFlag.Value = false
     hasSentFlag.Parent = ReplicatedStorage
 end
