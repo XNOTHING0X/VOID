@@ -19,8 +19,6 @@
 }
 
 * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent-color) var(--primary-bg);
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -29,12 +27,16 @@
 }
 
 html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background: var(--primary-bg);
     overflow: hidden;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Edge */
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
 }
 
 body {
@@ -92,21 +94,30 @@ body {
     100% { transform: translate(0); }
 }
 
+
 #api-selection {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: min(80%, 300px);
-    height: min(50%, 200px);
-    gap: 8px;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.5s ease-in-out;
-    padding: 8px;
+    padding: 24px;
     background: var(--secondary-bg);
     border-radius: 8px;
     box-shadow: 0 0 15px var(--glow-color);
+    overflow: hidden;
+
+    width: 90vw;
+    max-width: 500px;
+    height: auto;
+    max-height: 90vh;
+
+    box-sizing: border-box;
+
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.5s ease-in-out;
+
+    gap: 20px;
 }
 
 #api-selection.active {
@@ -117,29 +128,31 @@ body {
 .button-container {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 20px;
     width: 100%;
-    align-items: center;
 }
 
 .api-button {
-    padding: 3px 6px;
-    font-size: clamp(0.55rem, 2vw, 0.65rem);
+    padding: 20px 32px;
+    font-size: clamp(1.5rem, 3vw, 2rem);
     background: var(--secondary-bg);
-    border: 1px solid var(--accent-color);
-    border-radius: 5px;
+    border: 2px solid var(--accent-color);
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 0 6px var(--glow-color);
-    width: min(90%, 100px);
+    box-shadow: 0 0 10px var(--glow-color);
+
+    width: 100%;
     text-align: center;
+    user-select: none;
+
     animation: float 3s ease-in-out infinite;
 }
 
 .api-button:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 10px var(--glow-color);
-    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 15px var(--glow-color);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .api-button:active {
@@ -155,11 +168,12 @@ body {
 #editor-mode {
     display: none;
     flex-direction: column;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background: var(--primary-bg);
     transition: box-shadow 0.3s ease, opacity 0.5s ease;
     opacity: 0;
+    overflow: hidden;
 }
 
 #editor-mode.active {
@@ -177,11 +191,19 @@ body {
     padding: 8px;
     background: var(--secondary-bg);
     border-bottom: 2px solid var(--accent-color);
+    height: 50px;
+    width: 100%;
     overflow-x: auto;
+    overflow-y: hidden;
     white-space: nowrap;
     transition: box-shadow 0.3s ease;
-    scrollbar-width: none;
-    width: 100%;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Edge */
+    scroll-behavior: smooth;
+}
+
+.tab-header::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
 }
 
 .tab-header:hover {
@@ -189,7 +211,7 @@ body {
 }
 
 .tab {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     padding: 8px 16px;
     margin: 0 4px;
@@ -231,7 +253,7 @@ body {
 }
 
 #editor-container {
-    height: calc(100% - 68px);
+    height: calc(100vh - 40px);
     background: var(--primary-bg);
     display: flex;
     flex-direction: column;
@@ -247,6 +269,7 @@ body {
     background: var(--primary-bg);
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
 #context-menu {
@@ -261,7 +284,7 @@ body {
     min-width: min(180px, 90%);
     max-width: min(320px, 90%);
     max-height: min(320px, 80%);
-    overflow: auto;
+    overflow: hidden;
     opacity: 0;
     transform: translateY(-10px);
     transition: all 0.3s ease;
@@ -317,6 +340,7 @@ body {
     z-index: 10002;
     opacity: 0;
     transition: opacity 0.3s ease;
+    overflow: hidden;
 }
 
 #name-modal.show {
@@ -333,6 +357,7 @@ body {
     text-align: center;
     transform: scale(0.8);
     transition: transform 0.3s ease;
+    overflow: hidden;
 }
 
 #name-modal.show .modal-content {
@@ -430,6 +455,7 @@ body {
     text-shadow: 0 0 20px var(--glow-color);
     animation: pulse-text 1.5s infinite;
     z-index: 10003;
+    overflow: hidden;
 }
 
 #fallback.show {
@@ -534,7 +560,7 @@ body {
         function resizeEditor() {
             const editorContainer = document.getElementById('editor-container');
             if (editorContainer && editor) {
-                editorContainer.style.height = `${window.innerHeight - 68}px`;
+                editorContainer.style.height = `${window.innerHeight - 40}px`;
                 editor.layout();
             }
         }
@@ -794,6 +820,15 @@ body {
             contextMenuTargetTabId = null;
         }
 
+        function clearText() {
+            if (editor) {
+                editor.setValue('');
+                const currentTab = tabs.find(t => t.id === activeTabId);
+                if (currentTab) currentTab.content = '';
+                saveTabs();
+            }
+        }
+
         function initializeMonacoEditor() {
             try {
                 if (typeof require === 'undefined') {
@@ -840,7 +875,7 @@ body {
                                     [/\bstring\.(byte|char|dump|find|format|gmatch|gsub|len|lower|match|rep|reverse|sub|upper)\b/, 'string-function'],
                                     [/\bcoroutine\.(create|resume|running|status|wrap|yield)\b/, 'coroutine-function'],
                                     [/\b(Drawing|debug|Instance|Color3|Vector3|Vector2|BrickColor|math|table|string|coroutine|Humanoid|ClickDetector|LocalScript|Model|ModuleScript|Mouse|Part|Script|Tool|RunService|UserInputService|Workspace|ReplicatedFirst|SoundService|Character|CoreGui|ReplicatedStorage|Lighting|Players|PlayerGui|PlayerScript|LocalPlayer|Parent)\b/, 'roblox-class'],
-                                    [/\b(print|warn|info|printidentity|assert|collectgarbage|error|getfenv|getmetatable|setmetatable|ipairs|loadfile|loadstring|newproxy|next|pairs|pcall|spawn|rawequal|rawget|rawset|select|tonumber|tostring|type|unpack|xpcall|delay|stats)\b/, 'utility-function'],
+                                    [/\b(print|warn|info|printidentity|assert|collectgarbage|error|getfenv|getmetatable|setmetatable|ipairs|loadfile|loadstring|newproxy|next|pairs|pcall|script|rawequal|rawget|rawset|select|tonumber|tostring|type|unpack|xpcall|delay|stats)\b/, 'utility-function'],
                                     [/(?<=:)(Remove|BreakJoints|GetChildren|FindFirstChild|FireServer|InvokeServer|ClearAllChildren|Clone|Destroy|FindFirstAncestor|FindFirstAncestorOfClass|FindFirstAncestorWhichIsA|FindFirstChildOfClass|FindFirstChildWhichIsA|GetDebugId|GetDescendants|GetFullName|IsA|GetPropertyChangedSignal|IsAncestorOf|IsDescendantOf|WaitForChild|Connect|AncestryChanged|Changed|ChildAdded|ChildRemoved|DescendantAdded|DescendantRemoving|GetService|GetObjects|HttpGet|Wait)\b/, 'roblox-method'],
                                     [/\b(HttpGet|HttpGetAsync|HttpPostAsync)\b/, 'http-function'],
                                     [/\b(Visible|Color|Transparency|Thickness|From|To|Text|Size|Center|Outline|OutlineColor|Position|TextBounds|Font|Data|Rounding|NumSides|Radius|Filled|PointA|PointB|PointC|PointD)\b/, 'roblox-property'],
@@ -850,7 +885,7 @@ body {
                                     [/--\[\[/, 'comment', '@commentMultiline'],
                                     [/--.*$/, 'comment'],
                                     [/[+\-*\/%^#=<>~]/, 'operator'],
-                                    [/[;,:.(){}]/, 'delimiter']
+                                    [/[;,\:.\(\)\{\}]/, 'delimiter']
                                 ],
                                 commentMultiline: [
                                     [/[^\]]+/, 'comment'],
@@ -924,7 +959,7 @@ body {
                         });
                         editor.onDidChangeModelContent(() => {
                             const tabData = tabs.find(t => t.id === activeTabId);
-                            if (tabData) tabData.content = editor.getValue();
+                            if (tabData) tabData.content = editor.getValue() || '';
                             saveTabs();
                         });
                         try {
@@ -947,15 +982,20 @@ body {
                             createTab('Main', '');
                         }
                         resizeEditor();
-                        const editorContainer = document.getElementById('monaco-editor');
-                        const contextMenu = document.getElementById('context-menu');
-                        editorContainer.addEventListener('contextmenu', (e) => {
-                            e.preventDefault();
-                            contextMenuTargetTabId = null;
-                            showContextMenu(e.clientX, e.clientY, 'editor');
-                        });
+                        const editorContainer = document.getElementById('editor-container');
+                        if (editorContainer) {
+                            editorContainer.addEventListener('contextmenu', (e) => {
+                                e.preventDefault();
+                                showContextMenu(e.clientX, e.clientY, 'editor');
+                            });
+                        } else {
+                            console.error('Editor container not found');
+                        }
                         document.addEventListener('click', (e) => {
-                            if (!contextMenu.contains(e.target) && !document.getElementById('name-modal').contains(e.target)) {
+                            const contextMenu = document.getElementById('context-menu');
+                            const nameModal = document.getElementById('name-modal');
+                            if (!contextMenu.contains(e.target) && !nameModal.contains(e.target)) {
+                                console.log('Closing context menu');
                                 contextMenu.classList.remove('show');
                                 setTimeout(() => {
                                     contextMenu.style.display = 'none';
@@ -963,14 +1003,14 @@ body {
                                 }, 300);
                             }
                         });
-                        setInterval(() => saveTabs(), 500);
+                        setInterval(() => saveTabs(), 1000);
                     } catch (error) {
                         console.error('Monaco editor initialization error:', error);
                     }
                 });
             } catch (error) {
-                console.warn('Monaco require.js not loaded, retrying...');
-                setTimeout(initializeMonacoEditor, 1000);
+                console.warn('Monaco require.js not loaded, retrying:', error);
+                setTimeout(() => initializeMonacoEditor(), 1000);
             }
         }
 
@@ -985,67 +1025,81 @@ body {
                     console.warn('No script to execute');
                     return;
                 }
-                console.log(`Executing with ${selectedAPI} API`);
+                console.log(`Executing script for ${selectedAPI} API`);
                 fetch('/1', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
-                    body: `script=${encodeURIComponent(script)}&api=${selectedAPI}`
+                    body: `script=${encodeURIComponent(script)}&api=${encodeURIComponent(selectedAPI)}`
                 }).then(response => {
-                    if (!response.ok) throw new Error(`Execute failed: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
                     return response.json();
                 }).then(data => {
                     if (data.status === 'error') {
-                        console.error(`Execution error: ${data.message}`);
+                        console.error(`Execution failed: ${data.message}`);
                     } else {
-                        console.log('Script executed successfully:', data);
+                        console.log(`Execution successful: ${JSON.stringify(data)}`);
                     }
                 }).catch(error => {
-                    console.error('Error executing script:', error);
+                    console.error(`Execute error for ${selectedAPI}: ${error.message}`);
                 });
-            } catch (error) {
-                console.error('Execute script error:', error);
+            } catch (e) {
+                console.error(`Execute script error: ${e.message}`);
             }
         }
 
         function attachScript() {
             try {
-                console.log(`Attaching with ${selectedAPI} API`);
+                console.log(`Attaching script for ${selectedAPI} API`);
                 fetch('/0', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
-                    body: `api=${selectedAPI}`
+                    body: `api=${encodeURIComponent(selectedAPI)}`
                 }).then(response => {
                     if (!response.ok) {
                         isAttached = false;
-                        throw new Error(`Attach failed: ${response.status}`);
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
                     return response.json();
                 }).then(data => {
                     if (data.status === 'error') {
                         isAttached = false;
-                        console.error(`Attach error: ${data.message}`);
+                        console.error(`Attach error for ${selectedAPI}: ${data.message}`);
                     } else {
                         isAttached = true;
-                        console.log('Script attached successfully:', data);
+                        console.log(`Attached successfully: ${JSON.stringify(data)}`);
                     }
                 }).catch(error => {
                     isAttached = false;
-                    console.error('Error attaching script:', error);
+                    console.error(`Attach error for ${selectedAPI}: ${error.message}`);
                 });
-            } catch (error) {
+            } catch (e) {
                 isAttached = false;
-                console.error('Attach script error:', error);
+                console.error(`Attach script error: ${e.message}`);
             }
         }
 
-        window.addEventListener('load', function() {
+        window.addEventListener('load', () => {
             const loading = document.getElementById('loading');
             loading.classList.add('hidden');
             showApiSelection();
+        });
+
+        // Handle mouse wheel scrolling for tab-header
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabHeader = document.getElementById('tabHeader');
+            if (tabHeader) {
+                tabHeader.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    const scrollSpeed = 50;
+                    tabHeader.scrollLeft += e.deltaY > 0 ? scrollSpeed : -scrollSpeed;
+                });
+            }
         });
     </script>
 </body>
