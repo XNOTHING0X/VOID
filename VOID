@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,16 +8,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
 :root {
-    --primary-bg: rgba(0, 0, 0, 0.9);
-    --secondary-bg: rgba(0, 0, 0, 0.8);
+    --primary-bg: #000000;
+    --secondary-bg: #000000;
     --accent-color: #ffffff;
     --text-color: #ffffff;
     --glow-color: #ffffff;
     --disabled-color: #333333;
-    --hover-glow: rgba(255, 255, 255, 0.3);
 }
 
 * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) var(--primary-bg);
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -27,163 +27,115 @@
 }
 
 html, body {
-    width: 100vw;
-    height: 100vh;
+    margin: 0;
+    padding: 0;
+    height: 100%;
     background: var(--primary-bg);
     overflow: hidden;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Edge */
-}
-
-html::-webkit-scrollbar, body::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
 }
 
 body {
     display: flex;
-    justify-content: center;
-    align-items: center;
     user-select: none;
     position: relative;
 }
 
-#loading {
+/* Starry background */
+.stars {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--primary-bg);
-    color: var(--text-color);
-    font-size: 48px;
-    z-index: 10004;
-    transition: opacity 1s ease-out;
-}
-
-#loading.hidden {
-    opacity: 0;
-    display: none;
-}
-
-#loading-text {
-    animation: pulse-text 1.5s infinite;
-    text-shadow: 0 0 20px var(--glow-color);
-}
-
-@keyframes pulse-text {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.2); opacity: 0.7; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-#loading-text::after {
-    content: "VOID";
-    display: inline-block;
-    animation: glitch 2s infinite;
-}
-
-@keyframes glitch {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(2px, -2px); }
-    60% { transform: translate(-1px, 1px); }
-    80% { transform: translate(1px, -1px); }
-    100% { transform: translate(0); }
-}
-
-
-/* kontener dostosowujący się do viewportu, ale nie większy niż 90% szerokości i wysokości */
-#api-selection {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-    background: var(--secondary-bg);
-    border-radius: 8px;
-    box-shadow: 0 0 15px var(--glow-color);
+    z-index: -1;
     overflow: hidden;
+}
 
-    width: 90vw;          /* 90% szerokości okna */
-    max-width: 400px;     /* maksymalnie 400px */
-    height: auto;
-    max-height: 90vh;     /* max 90% wysokości okna */
-    box-sizing: border-box;
-
+.star {
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+    animation: twinkle var(--duration) infinite ease-in-out;
     opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.5s ease-in-out;
-
-    gap: 12px;
 }
 
-#api-selection.active {
-    opacity: 1;
-    transform: scale(1);
+@keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: var(--opacity); transform: scale(1); }
 }
 
-/* kontener przycisków */
-.button-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+/* Floating particles */
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
 }
 
-/* przyciski dopasowujące się na 100% szerokości kontenera */
-.api-button {
-    padding: 12px 16px;
-    font-size: clamp(0.8rem, 1.8vw, 1rem);
-    background: var(--secondary-bg);
-    border: 1px solid var(--accent-color);
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 0 6px var(--glow-color);
-
-    width: 100%;           /* zajmują pełną szerokość rodzica */
-    min-width: unset;
-    max-width: unset;
-
-    text-align: center;
-    user-select: none;
-
-    animation: float 3s ease-in-out infinite;
-}
-
-.api-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 10px var(--glow-color);
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.api-button:active {
-    transform: scale(0.95);
+.particle {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: float linear infinite;
+    filter: blur(1px);
 }
 
 @keyframes float {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-    100% { transform: translateY(0); }
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
 }
 
+/* Glowing border effect */
+.glow-border {
+    position: relative;
+}
 
-#editor-mode {
-    display: none;
+.glow-border::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    z-index: -1;
+    background: linear-gradient(45deg, #ffffff, #aaaaaa, #ffffff, #aaaaaa);
+    background-size: 400% 400%;
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity 0.3s, box-shadow 0.3s;
+    animation: glowAnimation 3s ease infinite;
+}
+
+.glow-border:hover::before {
+    opacity: 0.7;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+}
+
+@keyframes glowAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.main-content {
+    flex-grow: 1;
+    display: flex;
     flex-direction: column;
-    width: 100vw;
     height: 100vh;
+    width: 100%;
+    overflow: hidden;
     background: var(--primary-bg);
     transition: box-shadow 0.3s ease, opacity 0.5s ease;
     opacity: 0;
-    overflow: hidden;
+    position: relative;
 }
 
-#editor-mode.active {
-    display: flex;
+.main-content.active {
     opacity: 1;
 }
 
@@ -197,19 +149,12 @@ body {
     padding: 8px;
     background: var(--secondary-bg);
     border-bottom: 2px solid var(--accent-color);
-    height: 50px;
-    width: 100%;
     overflow-x: auto;
-    overflow-y: hidden;
     white-space: nowrap;
     transition: box-shadow 0.3s ease;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Edge */
-    scroll-behavior: smooth;
-}
-
-.tab-header::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
+    scrollbar-width: none;
+    position: relative;
+    z-index: 1;
 }
 
 .tab-header:hover {
@@ -217,18 +162,33 @@ body {
 }
 
 .tab {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     padding: 8px 16px;
     margin: 0 4px;
     cursor: pointer;
     background: var(--secondary-bg);
     border-radius: 8px;
-    font-size: clamp(12px, 3vw, 14px);
+    font-size: 14px;
     color: var(--text-color);
     transition: all 0.3s ease, transform 0.2s ease;
     opacity: 0;
     transform: translateY(-10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
 }
 
 .tab.show {
@@ -241,10 +201,18 @@ body {
     transform: scale(1.05);
 }
 
+.tab:hover::after {
+    transform: scaleX(1);
+}
+
 .tab.active {
     background: var(--secondary-bg);
     color: var(--text-color);
     box-shadow: 0 0 15px var(--glow-color);
+}
+
+.tab.active::after {
+    transform: scaleX(1);
 }
 
 .tab span {
@@ -254,12 +222,17 @@ body {
 }
 
 .tab i {
-    font-size: clamp(10px, 2.5vw, 12px);
+    font-size: 12px;
     color: var(--text-color);
+    transition: transform 0.3s ease;
+}
+
+.tab:hover i {
+    transform: rotate(15deg);
 }
 
 #editor-container {
-    height: calc(100vh - 40px);
+    height: calc(100vh - 68px);
     background: var(--primary-bg);
     display: flex;
     flex-direction: column;
@@ -275,7 +248,6 @@ body {
     background: var(--primary-bg);
     width: 100%;
     height: 100%;
-    overflow: hidden;
 }
 
 #context-menu {
@@ -285,15 +257,16 @@ body {
     border-radius: 12px;
     box-shadow: 0 8px 25px var(--glow-color);
     z-index: 10001;
-    font-size: clamp(12px, 3vw, 14px);
+    font-size: 14px;
     color: var(--text-color);
-    min-width: min(180px, 90%);
-    max-width: min(320px, 90%);
-    max-height: min(320px, 80%);
-    overflow: hidden;
+    min-width: 180px;
+    max-width: 320px;
+    max-height: 320px;
+    overflow: auto;
     opacity: 0;
     transform: translateY(-10px);
     transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
 }
 
 #context-menu.show {
@@ -309,17 +282,34 @@ body {
     gap: 10px;
     transition: all 0.2s ease, text-shadow 0.3s ease;
     white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+}
+
+.context-menu-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.context-menu-item:hover::before {
+    left: 100%;
 }
 
 .context-menu-item:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: #1a1a1a;
     color: var(--text-color);
     text-shadow: 0 0 12px var(--glow-color);
     box-shadow: 0 0 10px var(--glow-color);
 }
 
 .context-menu-item i {
-    font-size: clamp(12px, 3vw, 14px);
+    font-size: 14px;
     color: var(--text-color);
     transition: text-shadow 0.3s ease;
 }
@@ -346,7 +336,7 @@ body {
     z-index: 10002;
     opacity: 0;
     transition: opacity 0.3s ease;
-    overflow: hidden;
+    backdrop-filter: blur(5px);
 }
 
 #name-modal.show {
@@ -358,12 +348,41 @@ body {
     border: 1px solid var(--accent-color);
     border-radius: 8px;
     padding: 12px;
-    width: min(80%, 400px);
+    width: 80%;
+    min-width: 200px;
+    max-width: 400px;
     box-shadow: 0 4px 15px var(--glow-color);
     text-align: center;
     transform: scale(0.8);
     transition: transform 0.3s ease;
+    position: relative;
     overflow: hidden;
+}
+
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to bottom right,
+        transparent,
+        transparent,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent,
+        transparent,
+        transparent
+    );
+    transform: rotate(30deg);
+    animation: modalShine 3s infinite;
+}
+
+@keyframes modalShine {
+    0% { transform: translateY(-100%) rotate(30deg); }
+    100% { transform: translateY(100%) rotate(30deg); }
 }
 
 #name-modal.show .modal-content {
@@ -372,15 +391,15 @@ body {
 
 .modal-content h2 {
     margin-bottom: 10px;
-    font-size: clamp(1rem, 4vw, 1.1rem);
+    font-size: 1.1rem;
     color: var(--accent-color);
     animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+    0% { transform: scale(1); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+    50% { transform: scale(1.05); text-shadow: 0 0 15px rgba(255, 255, 255, 0.8); }
+    100% { transform: scale(1); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
 }
 
 .modal-content input {
@@ -391,15 +410,12 @@ body {
     border: 1px solid var(--accent-color);
     border-radius: 4px;
     color: var(--text-color);
-    font-size: clamp(0.9rem, 4vw, 1rem);
+    font-size: 1rem;
     transform: translateY(10px);
     opacity: 0;
     transition: all 0.3s ease 0.1s;
-}
-
-#name-modal.show .modal-content input {
-    transform: translateY(0);
-    opacity: 1;
+    position: relative;
+    z-index: 1;
 }
 
 .modal-content input:focus {
@@ -407,10 +423,17 @@ body {
     box-shadow: 0 0 8px var(--glow-color);
 }
 
+#name-modal.show .modal-content input {
+    transform: translateY(0);
+    opacity: 1;
+}
+
 .modal-buttons {
     display: flex;
     justify-content: space-between;
     gap: 6px;
+    position: relative;
+    z-index: 1;
 }
 
 .modal-button {
@@ -418,13 +441,31 @@ body {
     border: 1px solid var(--accent-color);
     border-radius: 4px;
     cursor: pointer;
-    font-size: clamp(0.8rem, 3.5vw, 0.85rem);
+    font-size: 0.85rem;
     transition: all 0.2s ease;
     background: var(--primary-bg);
     color: var(--text-color);
     transform: translateY(10px);
     opacity: 0;
     transition: all 0.3s ease 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+.modal-button:hover::after {
+    transform: translateX(100%);
 }
 
 #name-modal.show .modal-button {
@@ -447,37 +488,123 @@ body {
     cursor: not-allowed;
 }
 
-#fallback {
-    display: none;
+#loading {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--primary-bg);
+    display: flex;
     justify-content: center;
     align-items: center;
-    font-size: clamp(2rem, 10vw, 4rem);
-    text-shadow: 0 0 20px var(--glow-color);
-    animation: pulse-text 1.5s infinite;
-    z-index: 10003;
-    overflow: hidden;
+    background-color: var(--primary-bg);
+    color: var(--text-color);
+    font-size: 48px;
+    z-index: 10004;
+    transition: opacity 1s ease-out;
 }
 
-#fallback.show {
-    display: flex;
+#loading.hidden {
+    opacity: 0;
+    display: none;
+}
+
+#loading-text {
+    animation: dots 1.5s infinite steps(1, end);
+    position: relative;
+}
+
+#loading-text::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulseGlow 2s infinite alternate;
+}
+
+@keyframes pulseGlow {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.8; }
+}
+
+@keyframes dots {
+    0% { content: "VOID"; }
+    25% { content: "VOID."; }
+    50% { content: "VOID.."; }
+    75% { content: "VOID..."; }
+    100% { content: "VOID"; }
+}
+
+#loading-text::after {
+    content: "VOID";
+    display: inline-block;
+    width: 100px;
+    text-align: left;
+    animation: dots 1.5s infinite steps(1, end);
+}
+
+/* Floating animation for editor */
+@keyframes floatEditor {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Typewriter effect */
+.typewriter {
+    overflow: hidden;
+    border-right: 2px solid var(--accent-color);
+    white-space: nowrap;
+    margin: 0 auto;
+    letter-spacing: 2px;
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: var(--accent-color); }
+}
+
+/* Hover effects for editor */
+#editor-container:hover {
+    animation: floatEditor 3s ease-in-out infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--primary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #cccccc;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
     </style>
 </head>
 <body>
+    <div class="stars" id="stars"></div>
+    <div class="particles" id="particles"></div>
     <div id="loading"><span id="loading-text"></span></div>
-    <div id="api-selection">
-        <div class="button-container">
-            <button class="api-button" id="cloudy-button">Cloudy API</button>
-            <button class="api-button" id="xeno-button">Xeno API</button>
-        </div>
-    </div>
-    <div id="fallback">VOID :)</div>
     <div id="editor-mode" class="main-content">
         <div class="tab-header" id="tabHeader"></div>
         <div id="editor-container">
@@ -496,6 +623,67 @@ body {
         </div>
     </div>
     <script>
+        // Create starry background
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Random size between 1 and 3 pixels
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Random position
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // Random animation duration and delay
+                const duration = Math.random() * 5 + 3;
+                const delay = Math.random() * 5;
+                const opacity = Math.random() * 0.7 + 0.3;
+                
+                star.style.setProperty('--duration', `${duration}s`);
+                star.style.setProperty('--opacity', opacity);
+                star.style.animationDelay = `${delay}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random size between 1 and 3 pixels
+                const size = Math.random() * 2 + 1;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random position at bottom
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.bottom = `-10px`;
+                
+                // Random animation duration and delay
+                const duration = Math.random() * 15 + 10;
+                const delay = Math.random() * 5;
+                const horizontalMovement = Math.random() * 40 - 20;
+                
+                particle.style.animation = `float ${duration}s linear ${delay}s infinite`;
+                particle.style.setProperty('--movement', `${horizontalMovement}px`);
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
         function loadMonacoScript(callback) {
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.min.js';
@@ -515,58 +703,11 @@ body {
         let editor = null;
         let contextMenuTargetTabId = null;
         let isAttached = false;
-        let selectedAPI = null;
-
-        function showApiSelection() {
-            const apiSelection = document.getElementById('api-selection');
-            const fallback = document.getElementById('fallback');
-            if (apiSelection) {
-                apiSelection.style.display = 'flex';
-                fallback.style.display = 'none';
-                setTimeout(() => {
-                    apiSelection.classList.add('active');
-                }, 300);
-            } else {
-                fallback.classList.add('show');
-            }
-        }
-
-        function hideApiSelection() {
-            const apiSelection = document.getElementById('api-selection');
-            if (apiSelection) {
-                apiSelection.classList.remove('active');
-                setTimeout(() => {
-                    apiSelection.style.display = 'none';
-                }, 500);
-            }
-        }
-
-        function showEditor() {
-            const editorMode = document.getElementById('editor-mode');
-            editorMode.style.display = 'flex';
-            setTimeout(() => {
-                editorMode.classList.add('active');
-            }, 10);
-        }
-
-        document.getElementById('cloudy-button').addEventListener('click', () => {
-            selectedAPI = 'Cloudy';
-            hideApiSelection();
-            showEditor();
-            loadMonacoScript(initializeMonacoEditor);
-        });
-
-        document.getElementById('xeno-button').addEventListener('click', () => {
-            selectedAPI = 'Xeno';
-            hideApiSelection();
-            showEditor();
-            loadMonacoScript(initializeMonacoEditor);
-        });
 
         function resizeEditor() {
             const editorContainer = document.getElementById('editor-container');
             if (editorContainer && editor) {
-                editorContainer.style.height = `${window.innerHeight - 40}px`;
+                editorContainer.style.height = `${window.innerHeight - 68}px`;
                 editor.layout();
             }
         }
@@ -826,15 +967,6 @@ body {
             contextMenuTargetTabId = null;
         }
 
-        function clearText() {
-            if (editor) {
-                editor.setValue('');
-                const currentTab = tabs.find(t => t.id === activeTabId);
-                if (currentTab) currentTab.content = '';
-                saveTabs();
-            }
-        }
-
         function initializeMonacoEditor() {
             try {
                 if (typeof require === 'undefined') {
@@ -881,7 +1013,7 @@ body {
                                     [/\bstring\.(byte|char|dump|find|format|gmatch|gsub|len|lower|match|rep|reverse|sub|upper)\b/, 'string-function'],
                                     [/\bcoroutine\.(create|resume|running|status|wrap|yield)\b/, 'coroutine-function'],
                                     [/\b(Drawing|debug|Instance|Color3|Vector3|Vector2|BrickColor|math|table|string|coroutine|Humanoid|ClickDetector|LocalScript|Model|ModuleScript|Mouse|Part|Script|Tool|RunService|UserInputService|Workspace|ReplicatedFirst|SoundService|Character|CoreGui|ReplicatedStorage|Lighting|Players|PlayerGui|PlayerScript|LocalPlayer|Parent)\b/, 'roblox-class'],
-                                    [/\b(print|warn|info|printidentity|assert|collectgarbage|error|getfenv|getmetatable|setmetatable|ipairs|loadfile|loadstring|newproxy|next|pairs|pcall|script|rawequal|rawget|rawset|select|tonumber|tostring|type|unpack|xpcall|delay|stats)\b/, 'utility-function'],
+                                    [/\b(print|warn|info|printidentity|assert|collectgarbage|error|getfenv|getmetatable|setmetatable|ipairs|loadfile|loadstring|newproxy|next|pairs|pcall|spawn|rawequal|rawget|rawset|select|tonumber|tostring|type|unpack|xpcall|delay|stats)\b/, 'utility-function'],
                                     [/(?<=:)(Remove|BreakJoints|GetChildren|FindFirstChild|FireServer|InvokeServer|ClearAllChildren|Clone|Destroy|FindFirstAncestor|FindFirstAncestorOfClass|FindFirstAncestorWhichIsA|FindFirstChildOfClass|FindFirstChildWhichIsA|GetDebugId|GetDescendants|GetFullName|IsA|GetPropertyChangedSignal|IsAncestorOf|IsDescendantOf|WaitForChild|Connect|AncestryChanged|Changed|ChildAdded|ChildRemoved|DescendantAdded|DescendantRemoving|GetService|GetObjects|HttpGet|Wait)\b/, 'roblox-method'],
                                     [/\b(HttpGet|HttpGetAsync|HttpPostAsync)\b/, 'http-function'],
                                     [/\b(Visible|Color|Transparency|Thickness|From|To|Text|Size|Center|Outline|OutlineColor|Position|TextBounds|Font|Data|Rounding|NumSides|Radius|Filled|PointA|PointB|PointC|PointD)\b/, 'roblox-property'],
@@ -891,7 +1023,7 @@ body {
                                     [/--\[\[/, 'comment', '@commentMultiline'],
                                     [/--.*$/, 'comment'],
                                     [/[+\-*\/%^#=<>~]/, 'operator'],
-                                    [/[;,\:.\(\)\{\}]/, 'delimiter']
+                                    [/[;,:.(){}]/, 'delimiter']
                                 ],
                                 commentMultiline: [
                                     [/[^\]]+/, 'comment'],
@@ -965,7 +1097,7 @@ body {
                         });
                         editor.onDidChangeModelContent(() => {
                             const tabData = tabs.find(t => t.id === activeTabId);
-                            if (tabData) tabData.content = editor.getValue() || '';
+                            if (tabData) tabData.content = editor.getValue();
                             saveTabs();
                         });
                         try {
@@ -988,20 +1120,15 @@ body {
                             createTab('Main', '');
                         }
                         resizeEditor();
-                        const editorContainer = document.getElementById('editor-container');
-                        if (editorContainer) {
-                            editorContainer.addEventListener('contextmenu', (e) => {
-                                e.preventDefault();
-                                showContextMenu(e.clientX, e.clientY, 'editor');
-                            });
-                        } else {
-                            console.error('Editor container not found');
-                        }
+                        const editorContainer = document.getElementById('monaco-editor');
+                        const contextMenu = document.getElementById('context-menu');
+                        editorContainer.addEventListener('contextmenu', (e) => {
+                            e.preventDefault();
+                            contextMenuTargetTabId = null;
+                            showContextMenu(e.clientX, e.clientY, 'editor');
+                        });
                         document.addEventListener('click', (e) => {
-                            const contextMenu = document.getElementById('context-menu');
-                            const nameModal = document.getElementById('name-modal');
-                            if (!contextMenu.contains(e.target) && !nameModal.contains(e.target)) {
-                                console.log('Closing context menu');
+                            if (!contextMenu.contains(e.target) && !document.getElementById('name-modal').contains(e.target)) {
                                 contextMenu.classList.remove('show');
                                 setTimeout(() => {
                                     contextMenu.style.display = 'none';
@@ -1009,21 +1136,25 @@ body {
                                 }, 300);
                             }
                         });
-                        setInterval(() => saveTabs(), 1000);
+                        setInterval(() => saveTabs(), 500);
                     } catch (error) {
                         console.error('Monaco editor initialization error:', error);
                     }
                 });
             } catch (error) {
-                console.warn('Monaco require.js not loaded, retrying:', error);
-                setTimeout(() => initializeMonacoEditor(), 1000);
+                console.warn('Monaco require.js not loaded, retrying...');
+                setTimeout(initializeMonacoEditor, 1000);
             }
         }
+
+        loadMonacoScript(() => {
+            initializeMonacoEditor();
+        });
 
         function executeScript() {
             try {
                 if (!isAttached) {
-                    console.warn('Script not attached. Please attach first.');
+                    console.warn('Script not attached');
                     return;
                 }
                 const script = editor.getValue().trim();
@@ -1031,81 +1162,75 @@ body {
                     console.warn('No script to execute');
                     return;
                 }
-                console.log(`Executing script for ${selectedAPI} API`);
                 fetch('/1', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: `script=${encodeURIComponent(script)}&api=${encodeURIComponent(selectedAPI)}`
+                    body: 'script=' + encodeURIComponent(script)
                 }).then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
+                    if (!response.ok) throw new Error(`Execute failed: ${response.status}`);
                     return response.json();
                 }).then(data => {
-                    if (data.status === 'error') {
-                        console.error(`Execution failed: ${data.message}`);
-                    } else {
-                        console.log(`Execution successful: ${JSON.stringify(data)}`);
-                    }
+                    console.log('Script executed successfully:', data);
                 }).catch(error => {
-                    console.error(`Execute error for ${selectedAPI}: ${error.message}`);
+                    console.error('Error executing script:', error);
                 });
-            } catch (e) {
-                console.error(`Execute script error: ${e.message}`);
+            } catch (error) {
+                console.error('Execute script error:', error);
+            }
+        }
+
+        function clearText() {
+            try {
+                if (activeTabId && editor) {
+                    editor.setValue('');
+                    const tabData = tabs.find(t => t.id === activeTabId);
+                    if (tabData) {
+                        tabData.content = '';
+                    }
+                    saveTabs();
+                }
+            } catch (error) {
+                console.error('Error clearing text:', error);
             }
         }
 
         function attachScript() {
             try {
-                console.log(`Attaching script for ${selectedAPI} API`);
                 fetch('/0', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: `api=${encodeURIComponent(selectedAPI)}`
+                    method: 'POST'
                 }).then(response => {
                     if (!response.ok) {
                         isAttached = false;
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        throw new Error(`Attach failed: ${response.status}`);
                     }
+                    isAttached = true;
+                    console.log('Script attached successfully');
                     return response.json();
-                }).then(data => {
-                    if (data.status === 'error') {
-                        isAttached = false;
-                        console.error(`Attach error for ${selectedAPI}: ${data.message}`);
-                    } else {
-                        isAttached = true;
-                        console.log(`Attached successfully: ${JSON.stringify(data)}`);
-                    }
                 }).catch(error => {
                     isAttached = false;
-                    console.error(`Attach error for ${selectedAPI}: ${error.message}`);
+                    console.error('Error attaching script:', error);
                 });
-            } catch (e) {
+            } catch (error) {
                 isAttached = false;
-                console.error(`Attach script error: ${e.message}`);
+                console.error('Attach script error:', error);
             }
         }
 
-        window.addEventListener('load', () => {
-            const loading = document.getElementById('loading');
-            loading.classList.add('hidden');
-            showApiSelection();
-        });
-
-        // Handle mouse wheel scrolling for tab-header
-        document.addEventListener('DOMContentLoaded', () => {
-            const tabHeader = document.getElementById('tabHeader');
-            if (tabHeader) {
-                tabHeader.addEventListener('wheel', (e) => {
-                    e.preventDefault();
-                    const scrollSpeed = 50;
-                    tabHeader.scrollLeft += e.deltaY > 0 ? scrollSpeed : -scrollSpeed;
-                });
-            }
+        window.addEventListener('load', function() {
+            createStars();
+            createParticles();
+            
+            const checkMonacoLoaded = setInterval(() => {
+                if (typeof monaco !== 'undefined' && editor) {
+                    clearInterval(checkMonacoLoaded);
+                    const loading = document.getElementById('loading');
+                    const editorModeElement = document.getElementById('editor-mode');
+                    loading.classList.add('hidden');
+                    editorModeElement.classList.add('active');
+                }
+            }, 100);
         });
     </script>
 </body>
