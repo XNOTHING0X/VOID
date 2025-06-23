@@ -9,11 +9,13 @@
     <style>
 :root {
     --primary-bg: #000000;
-    --secondary-bg: #000000;
+    --secondary-bg: #111111;
     --accent-color: #ffffff;
     --text-color: #ffffff;
-    --glow-color: #ffffff;
+    --glow-color: rgba(255, 255, 255, 0.7);
     --disabled-color: #333333;
+    --hover-glow: 0 0 15px var(--glow-color);
+    --active-glow: 0 0 20px var(--glow-color);
 }
 
 * {
@@ -37,89 +39,7 @@ html, body {
 body {
     display: flex;
     user-select: none;
-    position: relative;
-}
-
-/* Starry background */
-.stars {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    overflow: hidden;
-}
-
-.star {
-    position: absolute;
-    background-color: white;
-    border-radius: 50%;
-    animation: twinkle var(--duration) infinite ease-in-out;
-    opacity: 0;
-}
-
-@keyframes twinkle {
-    0%, 100% { opacity: 0; transform: scale(0.5); }
-    50% { opacity: var(--opacity); transform: scale(1); }
-}
-
-/* Floating particles */
-.particles {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    overflow: hidden;
-}
-
-.particle {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
-    animation: float linear infinite;
-    filter: blur(1px);
-}
-
-@keyframes float {
-    0% { transform: translateY(0) translateX(0); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
-}
-
-/* Glowing border effect */
-.glow-border {
-    position: relative;
-}
-
-.glow-border::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    z-index: -1;
-    background: linear-gradient(45deg, #ffffff, #aaaaaa, #ffffff, #aaaaaa);
-    background-size: 400% 400%;
-    border-radius: 10px;
-    opacity: 0;
-    transition: opacity 0.3s, box-shadow 0.3s;
-    animation: glowAnimation 3s ease infinite;
-}
-
-.glow-border:hover::before {
-    opacity: 0.7;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-}
-
-@keyframes glowAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
 }
 
 .main-content {
@@ -129,18 +49,45 @@ body {
     height: 100vh;
     width: 100%;
     overflow: hidden;
-    background: var(--primary-bg);
-    transition: box-shadow 0.3s ease, opacity 0.5s ease;
+    background: transparent;
+    transition: all 0.5s ease;
     opacity: 0;
     position: relative;
 }
 
+.main-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        rgba(255, 255, 255, 0.03) 1px,
+        transparent 1px
+    ),
+    linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.03) 1px,
+        transparent 1px
+    );
+    background-size: 20px 20px;
+    z-index: -1;
+    opacity: 0.5;
+}
+
 .main-content.active {
     opacity: 1;
+    animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .main-content:hover {
-    box-shadow: 0 0 20px var(--glow-color);
+    box-shadow: var(--active-glow);
 }
 
 .tab-header {
@@ -148,17 +95,28 @@ body {
     align-items: center;
     padding: 8px;
     background: var(--secondary-bg);
-    border-bottom: 2px solid var(--accent-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     overflow-x: auto;
     white-space: nowrap;
-    transition: box-shadow 0.3s ease;
+    transition: all 0.3s ease;
     scrollbar-width: none;
     position: relative;
-    z-index: 1;
+    z-index: 10;
+}
+
+.tab-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+    opacity: 0.3;
 }
 
 .tab-header:hover {
-    box-shadow: 0 0 20px var(--glow-color);
+    box-shadow: var(--hover-glow);
 }
 
 .tab {
@@ -167,8 +125,8 @@ body {
     padding: 8px 16px;
     margin: 0 4px;
     cursor: pointer;
-    background: var(--secondary-bg);
-    border-radius: 8px;
+    background: rgba(30, 30, 30, 0.7);
+    border-radius: 6px;
     font-size: 14px;
     color: var(--text-color);
     transition: all 0.3s ease, transform 0.2s ease;
@@ -176,19 +134,23 @@ body {
     transform: translateY(-10px);
     position: relative;
     overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
 }
 
-.tab::after {
+.tab::before {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: 0;
+    top: 0;
+    left: -100%;
     width: 100%;
-    height: 2px;
-    background: var(--accent-color);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.3s ease;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: all 0.5s ease;
+}
+
+.tab:hover::before {
+    left: 100%;
 }
 
 .tab.show {
@@ -197,22 +159,16 @@ body {
 }
 
 .tab:hover {
-    box-shadow: 0 0 15px var(--glow-color);
+    box-shadow: var(--hover-glow);
     transform: scale(1.05);
-}
-
-.tab:hover::after {
-    transform: scaleX(1);
+    background: rgba(40, 40, 40, 0.8);
 }
 
 .tab.active {
-    background: var(--secondary-bg);
+    background: rgba(50, 50, 50, 0.9);
     color: var(--text-color);
-    box-shadow: 0 0 15px var(--glow-color);
-}
-
-.tab.active::after {
-    transform: scaleX(1);
+    box-shadow: var(--active-glow);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .tab span {
@@ -224,16 +180,16 @@ body {
 .tab i {
     font-size: 12px;
     color: var(--text-color);
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .tab:hover i {
-    transform: rotate(15deg);
+    transform: scale(1.2);
 }
 
 #editor-container {
     height: calc(100vh - 68px);
-    background: var(--primary-bg);
+    background: transparent;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -245,17 +201,17 @@ body {
 #monaco-editor {
     flex-grow: 1;
     min-height: 0;
-    background: var(--primary-bg);
+    background: transparent;
     width: 100%;
     height: 100%;
 }
 
 #context-menu {
     position: absolute;
-    background: var(--secondary-bg);
-    border: 2px solid var(--accent-color);
-    border-radius: 12px;
-    box-shadow: 0 8px 25px var(--glow-color);
+    background: rgba(20, 20, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
     z-index: 10001;
     font-size: 14px;
     color: var(--text-color);
@@ -264,14 +220,14 @@ body {
     max-height: 320px;
     overflow: auto;
     opacity: 0;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
+    transform: translateY(-10px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     backdrop-filter: blur(10px);
 }
 
 #context-menu.show {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 
 .context-menu-item {
@@ -280,47 +236,43 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    transition: all 0.2s ease, text-shadow 0.3s ease;
+    transition: all 0.2s ease;
     white-space: nowrap;
     position: relative;
     overflow: hidden;
 }
 
-.context-menu-item::before {
+.context-menu-item::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transition: left 0.5s ease;
-}
-
-.context-menu-item:hover::before {
-    left: 100%;
 }
 
 .context-menu-item:hover {
-    background: #1a1a1a;
+    background: rgba(255, 255, 255, 0.1);
     color: var(--text-color);
-    text-shadow: 0 0 12px var(--glow-color);
-    box-shadow: 0 0 10px var(--glow-color);
+    text-shadow: 0 0 8px var(--glow-color);
 }
 
 .context-menu-item i {
     font-size: 14px;
     color: var(--text-color);
-    transition: text-shadow 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .context-menu-item:hover i {
-    text-shadow: 0 0 12px var(--glow-color);
+    transform: scale(1.2);
+    text-shadow: 0 0 8px var(--glow-color);
 }
 
 .context-menu-item:disabled {
     color: var(--disabled-color);
     cursor: not-allowed;
+    opacity: 0.5;
 }
 
 #name-modal {
@@ -329,7 +281,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.7);
     display: none;
     justify-content: center;
     align-items: center;
@@ -344,17 +296,18 @@ body {
 }
 
 .modal-content {
-    background: var(--secondary-bg);
-    border: 1px solid var(--accent-color);
-    border-radius: 8px;
-    padding: 12px;
+    background: rgba(20, 20, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 20px;
     width: 80%;
     min-width: 200px;
     max-width: 400px;
-    box-shadow: 0 4px 15px var(--glow-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     text-align: center;
     transform: scale(0.8);
-    transition: transform 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(10px);
     position: relative;
     overflow: hidden;
 }
@@ -371,18 +324,18 @@ body {
         transparent,
         transparent,
         transparent,
-        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.05),
         transparent,
         transparent,
         transparent
     );
     transform: rotate(30deg);
-    animation: modalShine 3s infinite;
+    animation: shine 3s infinite;
 }
 
-@keyframes modalShine {
-    0% { transform: translateY(-100%) rotate(30deg); }
-    100% { transform: translateY(100%) rotate(30deg); }
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(30deg); }
+    100% { transform: translateX(100%) rotate(30deg); }
 }
 
 #name-modal.show .modal-content {
@@ -390,37 +343,26 @@ body {
 }
 
 .modal-content h2 {
-    margin-bottom: 10px;
-    font-size: 1.1rem;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
     color: var(--accent-color);
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
-    50% { transform: scale(1.05); text-shadow: 0 0 15px rgba(255, 255, 255, 0.8); }
-    100% { transform: scale(1); text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+    text-shadow: 0 0 10px var(--glow-color);
+    position: relative;
 }
 
 .modal-content input {
     width: 100%;
-    padding: 6px;
-    margin-bottom: 10px;
-    background: var(--primary-bg);
-    border: 1px solid var(--accent-color);
-    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+    background: rgba(10, 10, 10, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
     color: var(--text-color);
     font-size: 1rem;
     transform: translateY(10px);
     opacity: 0;
     transition: all 0.3s ease 0.1s;
-    position: relative;
-    z-index: 1;
-}
-
-.modal-content input:focus {
     outline: none;
-    box-shadow: 0 0 8px var(--glow-color);
 }
 
 #name-modal.show .modal-content input {
@@ -428,22 +370,26 @@ body {
     opacity: 1;
 }
 
+.modal-content input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px var(--glow-color);
+}
+
 .modal-buttons {
     display: flex;
     justify-content: space-between;
-    gap: 6px;
-    position: relative;
-    z-index: 1;
+    gap: 10px;
 }
 
 .modal-button {
-    padding: 5px 12px;
-    border: 1px solid var(--accent-color);
-    border-radius: 4px;
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 0.85rem;
-    transition: all 0.2s ease;
-    background: var(--primary-bg);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: rgba(30, 30, 30, 0.8);
     color: var(--text-color);
     transform: translateY(10px);
     opacity: 0;
@@ -452,20 +398,19 @@ body {
     overflow: hidden;
 }
 
-.modal-button::after {
+.modal-button::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
+    left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: all 0.5s ease;
 }
 
-.modal-button:hover::after {
-    transform: translateX(100%);
+.modal-button:hover::before {
+    left: 100%;
 }
 
 #name-modal.show .modal-button {
@@ -474,18 +419,20 @@ body {
 }
 
 .modal-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 10px var(--glow-color);
+    background: rgba(50, 50, 50, 0.8);
+    box-shadow: 0 0 15px var(--glow-color);
+    transform: translateY(-2px);
 }
 
 .modal-button:active {
-    transform: scale(0.95);
+    transform: translateY(1px);
     transition: transform 0.1s ease;
 }
 
 .modal-button:disabled {
     color: var(--disabled-color);
     cursor: not-allowed;
+    opacity: 0.6;
 }
 
 #loading {
@@ -502,109 +449,166 @@ body {
     font-size: 48px;
     z-index: 10004;
     transition: opacity 1s ease-out;
+    background: radial-gradient(circle, #0a0a0a 0%, #000000 100%);
 }
 
 #loading.hidden {
     opacity: 0;
-    display: none;
+    pointer-events: none;
 }
 
 #loading-text {
-    animation: dots 1.5s infinite steps(1, end);
     position: relative;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px var(--glow-color);
+    animation: pulse 2s infinite alternate;
 }
 
-#loading-text::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 120%;
-    height: 120%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: pulseGlow 2s infinite alternate;
-}
-
-@keyframes pulseGlow {
-    0% { opacity: 0.3; }
-    100% { opacity: 0.8; }
-}
-
-@keyframes dots {
-    0% { content: "VOID"; }
-    25% { content: "VOID."; }
-    50% { content: "VOID.."; }
-    75% { content: "VOID..."; }
-    100% { content: "VOID"; }
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(1.1); opacity: 1; }
 }
 
 #loading-text::after {
     content: "VOID";
     display: inline-block;
     width: 100px;
-    text-align: left;
-    animation: dots 1.5s infinite steps(1, end);
+    text-align: center;
 }
 
-/* Floating animation for editor */
-@keyframes floatEditor {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
-    100% { transform: translateY(0px); }
+.floating-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
 }
 
-/* Typewriter effect */
-.typewriter {
-    overflow: hidden;
-    border-right: 2px solid var(--accent-color);
-    white-space: nowrap;
-    margin: 0 auto;
-    letter-spacing: 2px;
-    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+.particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    animation: float linear infinite;
+    filter: blur(1px);
 }
 
-@keyframes typing {
-    from { width: 0 }
-    to { width: 100% }
+@keyframes float {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
 }
 
-@keyframes blink-caret {
-    from, to { border-color: transparent }
-    50% { border-color: var(--accent-color); }
-}
-
-/* Hover effects for editor */
-#editor-container:hover {
-    animation: floatEditor 3s ease-in-out infinite;
-}
-
-/* Custom scrollbar */
+/* Scrollbar styling */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--primary-bg);
+    background: rgba(10, 10, 10, 0.5);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--accent-color);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #cccccc;
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Tooltip styles */
+.tooltip {
+    position: absolute;
+    background: rgba(20, 20, 20, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10005;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.tooltip.active {
+    opacity: 1;
+}
+
+/* Status bar styles */
+.status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 24px;
+    background: rgba(20, 20, 20, 0.9);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-size: 12px;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.status-item {
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.status-item i {
+    margin-right: 5px;
+    font-size: 10px;
+}
+
+/* Animation classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.slide-up {
+    animation: slideUp 0.5s ease-out forwards;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.pulse {
+    animation: pulse 1.5s infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .tab {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .modal-content {
+        width: 90%;
+        padding: 15px;
+    }
+    
+    #loading-text {
+        font-size: 32px;
+    }
 }
     </style>
 </head>
 <body>
-    <div class="stars" id="stars"></div>
-    <div class="particles" id="particles"></div>
     <div id="loading"><span id="loading-text"></span></div>
+    <div class="floating-particles" id="particles"></div>
     <div id="editor-mode" class="main-content">
         <div class="tab-header" id="tabHeader"></div>
         <div id="editor-container">
@@ -622,65 +626,92 @@ body {
             </div>
         </div>
     </div>
+    <div class="status-bar">
+        <div class="status-item" id="connection-status">
+            <i class="fas fa-circle" style="color: #ff5555;"></i>
+            <span>Disconnected</span>
+        </div>
+        <div class="status-item" id="line-info">
+            <i class="fas fa-code"></i>
+            <span>Line: 1, Column: 1</span>
+        </div>
+    </div>
+    <div class="tooltip" id="tooltip"></div>
     <script>
-        // Create starry background
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            const starCount = 200;
-            
-            for (let i = 0; i < starCount; i++) {
-                const star = document.createElement('div');
-                star.classList.add('star');
-                
-                // Random size between 1 and 3 pixels
-                const size = Math.random() * 2 + 1;
-                star.style.width = `${size}px`;
-                star.style.height = `${size}px`;
-                
-                // Random position
-                star.style.left = `${Math.random() * 100}%`;
-                star.style.top = `${Math.random() * 100}%`;
-                
-                // Random animation duration and delay
-                const duration = Math.random() * 5 + 3;
-                const delay = Math.random() * 5;
-                const opacity = Math.random() * 0.7 + 0.3;
-                
-                star.style.setProperty('--duration', `${duration}s`);
-                star.style.setProperty('--opacity', opacity);
-                star.style.animationDelay = `${delay}s`;
-                
-                starsContainer.appendChild(star);
-            }
-        }
-
         // Create floating particles
         function createParticles() {
             const particlesContainer = document.getElementById('particles');
-            const particleCount = 50;
+            const particleCount = 30;
             
             for (let i = 0; i < particleCount; i++) {
                 const particle = document.createElement('div');
                 particle.classList.add('particle');
                 
-                // Random size between 1 and 3 pixels
+                // Random size between 1px and 3px
                 const size = Math.random() * 2 + 1;
                 particle.style.width = `${size}px`;
                 particle.style.height = `${size}px`;
                 
-                // Random position at bottom
+                // Random position
                 particle.style.left = `${Math.random() * 100}%`;
-                particle.style.bottom = `-10px`;
+                particle.style.bottom = `-${size}px`;
                 
-                // Random animation duration and delay
-                const duration = Math.random() * 15 + 10;
-                const delay = Math.random() * 5;
-                const horizontalMovement = Math.random() * 40 - 20;
+                // Random animation duration between 10s and 20s
+                const duration = Math.random() * 10 + 10;
+                particle.style.animationDuration = `${duration}s`;
                 
-                particle.style.animation = `float ${duration}s linear ${delay}s infinite`;
-                particle.style.setProperty('--movement', `${horizontalMovement}px`);
+                // Random delay
+                particle.style.animationDelay = `${Math.random() * 20}s`;
                 
                 particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Initialize tooltip
+        function initTooltip() {
+            const tooltip = document.getElementById('tooltip');
+            
+            document.querySelectorAll('[data-tooltip]').forEach(element => {
+                element.addEventListener('mouseenter', (e) => {
+                    const message = e.target.getAttribute('data-tooltip');
+                    tooltip.textContent = message;
+                    tooltip.classList.add('active');
+                    
+                    // Position tooltip
+                    const rect = e.target.getBoundingClientRect();
+                    tooltip.style.top = `${rect.top - tooltip.offsetHeight - 5}px`;
+                    tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    tooltip.classList.remove('active');
+                });
+            });
+        }
+
+        // Update line and column info
+        function updateLineInfo() {
+            if (!editor) return;
+            
+            const position = editor.getPosition();
+            const lineInfo = document.getElementById('line-info');
+            lineInfo.querySelector('span').textContent = `Line: ${position.lineNumber}, Column: ${position.column}`;
+        }
+
+        // Update connection status
+        function updateConnectionStatus(connected) {
+            const statusElement = document.getElementById('connection-status');
+            const icon = statusElement.querySelector('i');
+            const text = statusElement.querySelector('span');
+            
+            if (connected) {
+                icon.style.color = '#50fa7b';
+                text.textContent = 'Connected';
+                statusElement.classList.add('pulse');
+            } else {
+                icon.style.color = '#ff5555';
+                text.textContent = 'Disconnected';
+                statusElement.classList.remove('pulse');
             }
         }
 
@@ -850,6 +881,7 @@ body {
                 editor.focus();
             }
             renderTabs();
+            updateLineInfo();
         }
 
         function closeTab(tabId) {
@@ -912,7 +944,7 @@ body {
                 contextMenu.innerHTML = `
                     <div class="context-menu-item" data-action="execute"><i class="fas fa-play"></i> Execute</div>
                     <div class="context-menu-item" data-action="clear"><i class="fas fa-eraser"></i> Clear</div>
-                    <div class="context-menu-item" data-action="attach"><i class="fas fa-link"></i> Attach</div>
+                    <div class="context-menu-item" data-action="attach"><i class="fas fa-link"></i> ${isAttached ? 'Detach' : 'Attach'}</div>
                 `;
             }
             contextMenu.style.display = 'block';
@@ -942,7 +974,7 @@ body {
                         case 'add': addTabFromMenu(); break;
                         case 'execute': executeScript(); break;
                         case 'clear': clearText(); break;
-                        case 'attach': attachScript(); break;
+                        case 'attach': toggleAttach(); break;
                     }
                 });
             });
@@ -1100,6 +1132,9 @@ body {
                             if (tabData) tabData.content = editor.getValue();
                             saveTabs();
                         });
+                        editor.onDidChangeCursorPosition(() => {
+                            updateLineInfo();
+                        });
                         try {
                             const savedTabs = JSON.parse(localStorage.getItem('savedTabs') || '[]');
                             const savedActiveTabId = localStorage.getItem('activeTabId');
@@ -1147,10 +1182,6 @@ body {
             }
         }
 
-        loadMonacoScript(() => {
-            initializeMonacoEditor();
-        });
-
         function executeScript() {
             try {
                 if (!isAttached) {
@@ -1196,6 +1227,14 @@ body {
             }
         }
 
+        function toggleAttach() {
+            if (isAttached) {
+                detachScript();
+            } else {
+                attachScript();
+            }
+        }
+
         function attachScript() {
             try {
                 fetch('/0', {
@@ -1203,34 +1242,67 @@ body {
                 }).then(response => {
                     if (!response.ok) {
                         isAttached = false;
+                        updateConnectionStatus(false);
                         throw new Error(`Attach failed: ${response.status}`);
                     }
                     isAttached = true;
+                    updateConnectionStatus(true);
                     console.log('Script attached successfully');
                     return response.json();
                 }).catch(error => {
                     isAttached = false;
+                    updateConnectionStatus(false);
                     console.error('Error attaching script:', error);
                 });
             } catch (error) {
                 isAttached = false;
+                updateConnectionStatus(false);
                 console.error('Attach script error:', error);
             }
         }
 
+        function detachScript() {
+            try {
+                fetch('/0', {
+                    method: 'DELETE'
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Detach failed: ${response.status}`);
+                    }
+                    isAttached = false;
+                    updateConnectionStatus(false);
+                    console.log('Script detached successfully');
+                }).catch(error => {
+                    console.error('Error detaching script:', error);
+                });
+            } catch (error) {
+                console.error('Detach script error:', error);
+            }
+        }
+
         window.addEventListener('load', function() {
-            createStars();
             createParticles();
+            initTooltip();
             
             const checkMonacoLoaded = setInterval(() => {
                 if (typeof monaco !== 'undefined' && editor) {
                     clearInterval(checkMonacoLoaded);
                     const loading = document.getElementById('loading');
                     const editorModeElement = document.getElementById('editor-mode');
+                    
+                    // Add fade out animation to loading screen
                     loading.classList.add('hidden');
-                    editorModeElement.classList.add('active');
+                    
+                    // Add fade in animation to editor
+                    setTimeout(() => {
+                        editorModeElement.classList.add('active');
+                    }, 500);
                 }
             }, 100);
+        });
+
+        loadMonacoScript(() => {
+            initializeMonacoEditor();
         });
     </script>
 </body>
