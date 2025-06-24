@@ -604,6 +604,71 @@ body {
         font-size: 32px;
     }
 }
+/* Modal base styles */
+#name-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#name-modal.show {
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+#name-modal.show .modal-content {
+    transform: translateY(0);
+}
+
+.error-message {
+    padding: 15px;
+    margin: 10px 0;
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+.modal-button {
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.modal-button.primary {
+    background-color: #dc3545;
+    color: white;
+}
+
+.modal-button.primary:hover {
+    background-color: #c82333;
+}
     </style>
 </head>
 <body>
@@ -1248,27 +1313,92 @@ function showErrorModal(message) {
     const input = document.getElementById('name-input');
     const modalButtons = modal.querySelector('.modal-buttons');
     
-    modalTitle.textContent = 'Error';
-    input.style.display = 'none'; // Hide input field
-    modalButtons.innerHTML = `<p>${message}</p><button class="modal-button" id="error-ok-button">OK</button>`;
+    // Store original content to restore later
+    const originalInputDisplay = input.style.display;
+    const originalButtonsHTML = modalButtons.innerHTML;
     
+    // Update modal content
+    modalTitle.textContent = 'Error';
+    input.style.display = 'none';
+    
+    // Create error message container
+    const errorMessage = document.createElement('div');
+    errorMessage.className = 'error-message';
+    errorMessage.textContent = message;
+    errorMessage.style.cssText = `
+        padding: 15px;
+        margin: 10px 0;
+        color: #721c24;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+        max-width: 100%;
+        word-wrap: break-word;
+    `;
+    
+    // Create OK button
+    const okButton = document.createElement('button');
+    okButton.className = 'modal-button primary';
+    okButton.id = 'error-ok-button';
+    okButton.textContent = 'OK';
+    okButton.style.cssText = `
+        margin-top: 15px;
+        padding: 8px 20px;
+        background-color: #dc3545;
+        color: white;
+    `;
+    
+    // Clear and rebuild modal buttons
+    modalButtons.innerHTML = '';
+    modalButtons.appendChild(errorMessage);
+    modalButtons.appendChild(okButton);
+    
+    // Show modal with animation
     modal.style.display = 'flex';
     setTimeout(() => modal.classList.add('show'), 10);
     
-    const okButton = document.getElementById('error-ok-button');
+    // Auto-resize modal based on content
+    const resizeModal = () => {
+        const contentHeight = modalContent.scrollHeight;
+        const maxHeight = window.innerHeight * 0.8;
+        modalContent.style.maxHeight = `${Math.min(contentHeight, maxHeight)}px`;
+        modalContent.style.overflowY = contentHeight > maxHeight ? 'auto' : 'hidden';
+    };
+    
+    // Initial resize and add resize observer
+    resizeModal();
+    const resizeObserver = new ResizeObserver(resizeModal);
+    resizeObserver.observe(modalContent);
+    
+    // Close modal function
     const closeModal = () => {
         modal.classList.remove('show');
         setTimeout(() => {
             modal.style.display = 'none';
-            input.style.display = 'block'; // Restore input field
-            modalButtons.innerHTML = `
-                <button class="modal-button" id="modal-button">Confirm</button>
-                <button class="modal-button" id="cancel-button">Cancel</button>
-            `;
+            // Restore original content
+            input.style.display = originalInputDisplay;
+            modalButtons.innerHTML = originalButtonsHTML;
+            // Clean up observer
+            resizeObserver.disconnect();
         }, 300);
     };
     
+    // Add event listeners
     okButton.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    
+    // Add keyboard support
+    document.addEventListener('keydown', function handleKeyDown(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', handleKeyDown);
+        } else if (e.key === 'Enter') {
+            closeModal();
+            document.removeEventListener('keydown', handleKeyDown);
+        }
+    });
 }
 
         window.addEventListener('load', function() {
