@@ -546,7 +546,6 @@ body {
 .status-bar {
     position: fixed;
     bottom: 0;
-    left: 0;
     right: 0;
     height: 24px;
     background: rgba(20, 20, 20, 0.9);
@@ -557,10 +556,11 @@ body {
     font-size: 12px;
     z-index: 1000;
     backdrop-filter: blur(5px);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .status-item {
-    margin-right: 15px;
+    margin-left: 15px;
     display: flex;
     align-items: center;
 }
@@ -603,6 +603,16 @@ body {
     #loading-text {
         font-size: 32px;
     }
+    
+    .status-bar {
+        left: 0;
+        justify-content: flex-end;
+    }
+    
+    .status-item {
+        margin-left: 10px;
+        margin-right: 0;
+    }
 }
     </style>
 </head>
@@ -627,13 +637,13 @@ body {
         </div>
     </div>
     <div class="status-bar">
-        <div class="status-item" id="connection-status">
-            <i class="fas fa-circle" style="color: #ff5555;"></i>
-            <span>Disconnected</span>
-        </div>
         <div class="status-item" id="line-info">
             <i class="fas fa-code"></i>
             <span>Line: 1, Column: 1</span>
+        </div>
+        <div class="status-item" id="connection-status">
+            <i class="fas fa-circle" style="color: #ff5555;"></i>
+            <span>Disconnected</span>
         </div>
     </div>
     <div class="tooltip" id="tooltip"></div>
@@ -944,7 +954,7 @@ body {
                 contextMenu.innerHTML = `
                     <div class="context-menu-item" data-action="execute"><i class="fas fa-play"></i> Execute</div>
                     <div class="context-menu-item" data-action="clear"><i class="fas fa-eraser"></i> Clear</div>
-                    <div class="context-menu-item" data-action="attach"><i class="fas fa-link"></i> ${isAttached ? 'Detach' : 'Attach'}</div>
+                    <div class="context-menu-item" data-action="attach"><i class="fas fa-link"></i> Attach</div>
                 `;
             }
             contextMenu.style.display = 'block';
@@ -974,7 +984,7 @@ body {
                         case 'add': addTabFromMenu(); break;
                         case 'execute': executeScript(); break;
                         case 'clear': clearText(); break;
-                        case 'attach': toggleAttach(); break;
+                        case 'attach': attachScript(); break;
                     }
                 });
             });
@@ -1227,14 +1237,6 @@ body {
             }
         }
 
-        function toggleAttach() {
-            if (isAttached) {
-                detachScript();
-            } else {
-                attachScript();
-            }
-        }
-
         function attachScript() {
             try {
                 fetch('/0', {
@@ -1258,25 +1260,6 @@ body {
                 isAttached = false;
                 updateConnectionStatus(false);
                 console.error('Attach script error:', error);
-            }
-        }
-
-        function detachScript() {
-            try {
-                fetch('/0', {
-                    method: 'DELETE'
-                }).then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Detach failed: ${response.status}`);
-                    }
-                    isAttached = false;
-                    updateConnectionStatus(false);
-                    console.log('Script detached successfully');
-                }).catch(error => {
-                    console.error('Error detaching script:', error);
-                });
-            } catch (error) {
-                console.error('Detach script error:', error);
             }
         }
 
