@@ -543,31 +543,31 @@ body {
 }
 
 /* Status bar styles */
-.status-bar {
+.status-indicator {
     position: fixed;
     bottom: 0;
     right: 0;
     height: 24px;
-    background: rgba(20, 20, 20, 0.9);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 24px;
     display: flex;
     align-items: center;
-    padding: 0 10px;
-    font-size: 12px;
+    justify-content: center;
     z-index: 1000;
+    border-radius: 50% 0 0 0;
+    background: rgba(20, 20, 20, 0.9);
     backdrop-filter: blur(5px);
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.status-item {
-    margin-left: 15px;
-    display: flex;
-    align-items: center;
-}
-
-.status-item i {
-    margin-right: 5px;
+.status-indicator i {
     font-size: 10px;
+}
+
+.status-indicator.connected {
+    color: #50fa7b;
+}
+
+.status-indicator.disconnected {
+    color: #ff5555;
 }
 
 /* Animation classes */
@@ -603,16 +603,6 @@ body {
     #loading-text {
         font-size: 32px;
     }
-    
-    .status-bar {
-        left: 0;
-        justify-content: flex-end;
-    }
-    
-    .status-item {
-        margin-left: 10px;
-        margin-right: 0;
-    }
 }
     </style>
 </head>
@@ -636,15 +626,8 @@ body {
             </div>
         </div>
     </div>
-    <div class="status-bar">
-        <div class="status-item" id="line-info">
-            <i class="fas fa-code"></i>
-            <span>Line: 1, Column: 1</span>
-        </div>
-        <div class="status-item" id="connection-status">
-            <i class="fas fa-circle" style="color: #ff5555;"></i>
-            <span>Disconnected</span>
-        </div>
+    <div class="status-indicator disconnected" id="connection-status">
+        <i class="fas fa-circle"></i>
     </div>
     <div class="tooltip" id="tooltip"></div>
     <script>
@@ -699,28 +682,16 @@ body {
             });
         }
 
-        // Update line and column info
-        function updateLineInfo() {
-            if (!editor) return;
-            
-            const position = editor.getPosition();
-            const lineInfo = document.getElementById('line-info');
-            lineInfo.querySelector('span').textContent = `Line: ${position.lineNumber}, Column: ${position.column}`;
-        }
-
         // Update connection status
         function updateConnectionStatus(connected) {
             const statusElement = document.getElementById('connection-status');
-            const icon = statusElement.querySelector('i');
-            const text = statusElement.querySelector('span');
-            
             if (connected) {
-                icon.style.color = '#50fa7b';
-                text.textContent = 'Connected';
+                statusElement.classList.remove('disconnected');
+                statusElement.classList.add('connected');
                 statusElement.classList.add('pulse');
             } else {
-                icon.style.color = '#ff5555';
-                text.textContent = 'Disconnected';
+                statusElement.classList.remove('connected');
+                statusElement.classList.add('disconnected');
                 statusElement.classList.remove('pulse');
             }
         }
@@ -891,7 +862,6 @@ body {
                 editor.focus();
             }
             renderTabs();
-            updateLineInfo();
         }
 
         function closeTab(tabId) {
@@ -1008,7 +978,6 @@ body {
             await createTab();
             contextMenuTargetTabId = null;
         }
-
         function initializeMonacoEditor() {
             try {
                 if (typeof require === 'undefined') {
