@@ -669,6 +669,13 @@ body {
 .modal-button.primary:hover {
     background-color: #c82333;
 }
+.modal-content p {
+    color: var(--text-color);
+    margin-bottom: 15px;
+    font-size: 1rem;
+    text-align: left;
+    word-wrap: break-word;
+}
     </style>
 </head>
 <body>
