@@ -1206,31 +1206,70 @@ body {
             }
         }
 
-        function attachScript() {
-            try {
-                fetch('/0', {
-                    method: 'POST'
-                }).then(response => {
-                    if (!response.ok) {
-                        isAttached = false;
-                        updateConnectionStatus(false);
-                        throw new Error(`Attach failed: ${response.status}`);
-                    }
-                    isAttached = true;
-                    updateConnectionStatus(true);
-                    console.log('Script attached successfully');
-                    return response.json();
-                }).catch(error => {
-                    isAttached = false;
-                    updateConnectionStatus(false);
-                    console.error('Error attaching script:', error);
+function attachScript() {
+    try {
+        fetch('/0', {
+            method: 'POST'
+        }).then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || `Attach failed: ${response.status}`);
                 });
-            } catch (error) {
+            }
+            return response.json();
+        }).then(data => {
+            if (data.status === 'attached') {
+                isAttached = true;
+                updateConnectionStatus(true);
+                console.log('Script attached successfully');
+            } else {
                 isAttached = false;
                 updateConnectionStatus(false);
-                console.error('Attach script error:', error);
+                showErrorModal(data.message || 'Failed to attach script');
             }
-        }
+        }).catch(error => {
+            isAttached = false;
+            updateConnectionStatus(false);
+            showErrorModal(error.message || 'Error attaching script');
+            console.error('Error attaching script:', error);
+        });
+    } catch (error) {
+        isAttached = false;
+        updateConnectionStatus(false);
+        showErrorModal(error.message || 'Error attaching script');
+        console.error('Attach script error:', error);
+    }
+}
+
+function showErrorModal(message) {
+    const modal = document.getElementById('name-modal');
+    const modalContent = modal.querySelector('.modal-content');
+    const modalTitle = document.getElementById('modal-title');
+    const input = document.getElementById('name-input');
+    const modalButtons = modal.querySelector('.modal-buttons');
+    
+    modalTitle.textContent = 'Error';
+    input.style.display = 'none'; // Hide input field
+    modalButtons.innerHTML = `<p>${message}</p><button class="modal-button" id="error-ok-button">OK</button>`;
+    
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('show'), 10);
+    
+    const okButton = document.getElementById('error-ok-button');
+    const closeModal = () => {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            input.style.display = 'block'; // Restore input field
+            modalButtons.innerHTML = `
+                <button class="modal-button" id="modal-button">Confirm</button>
+                <button class="modal-button" id="cancel-button">Cancel</button>
+            `;
+        }, 300);
+    };
+    
+    okButton.addEventListener('click', closeModal);
+}
 
         window.addEventListener('load', function() {
             createParticles();
