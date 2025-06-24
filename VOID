@@ -609,11 +609,11 @@ body {
     flex-direction: column;
     align-items: center;
     max-height: 80vh; /* Default max height to 80% of viewport */
+    max-width: 400px; /* Default max width */
     height: auto; /* Allow modal to size based on content */
+    width: auto; /* Allow width to adjust to content */
     overflow: hidden; /* Disable scrollbars in all browsers */
-    width: 80%;
     min-width: 200px;
-    max-width: 400px;
     padding: 20px;
     box-sizing: border-box;
     -ms-overflow-style: none; /* Hide scrollbar in Edge/IE */
@@ -621,7 +621,19 @@ body {
 }
 
 .modal-content::-webkit-scrollbar {
-    display: none; /* Hide scrollbar in Chrome, Safari, and Edge (WebKit-based) */
+    display: none; /* Hide scrollbar in Chrome, Safari, Edge (WebKit-based) */
+}
+
+.modal-content h2 {
+    margin: 0 0 15px 0;
+    font-size: 1.2rem; /* Default font size */
+    text-align: center;
+    width: 100%;
+    overflow-wrap: break-word; /* Ensure long titles wrap */
+    white-space: normal; /* Allow title to wrap */
+    line-height: 1.3; /* Improve readability */
+    padding: 0 10px;
+    box-sizing: border-box;
 }
 
 .modal-content p.error-message {
@@ -634,7 +646,7 @@ body {
     overflow-wrap: break-word; /* Ensure long words wrap */
     white-space: normal; /* Allow text to wrap naturally */
     line-height: 1.4; /* Improve readability */
-    padding: 0 10px; /* Add padding to prevent text from touching edges */
+    padding: 0 10px; /* Prevent text from touching edges */
     box-sizing: border-box;
 }
 
@@ -652,15 +664,20 @@ body {
     padding: 8px 12px;
     margin: 0 auto; /* Center button */
     text-align: center;
+    font-size: 0.9rem; /* Default font size */
     box-sizing: border-box;
 }
 
-/* Ensure modal stays within viewport on smaller screens */
+/* Responsive adjustments */
 @media (max-width: 768px) {
     .modal-content {
         width: 90%;
         max-width: 320px;
         padding: 15px;
+    }
+    
+    .modal-content h2 {
+        font-size: 1rem;
     }
     
     .modal-content p.error-message {
@@ -1322,43 +1339,65 @@ function showErrorModal(message) {
     const okButton = document.getElementById('error-ok-button');
     const errorMessage = modalButtons.querySelector('.error-message');
     
-    // Set maximum modal height to 80% of viewport height
-    const maxModalHeight = window.innerHeight * 0.8;
+    // Set maximum modal dimensions
+    const maxModalHeight = window.innerHeight * 0.8; // 80% of viewport height
+    const maxModalWidth = Math.min(window.innerWidth * 0.8, 400); // 80% of viewport width or 400px
     modalContent.style.maxHeight = `${maxModalHeight}px`;
-    modalContent.style.overflow = 'hidden'; // Disable scrollbars in all browsers
+    modalContent.style.maxWidth = `${maxModalWidth}px`;
+    modalContent.style.overflow = 'hidden'; // Disable scrollbars
     modalContent.style.height = 'auto'; // Allow modal to size based on content
+    modalContent.style.width = 'auto'; // Allow width to adjust to content
     
-    // Ensure text wraps and fits within the modal
+    // Reset font sizes
+    let titleFontSize = 18; // Start with 1.2rem (approx 18px)
+    let messageFontSize = 16; // Start with 1rem (16px)
+    modalTitle.style.fontSize = `${titleFontSize}px`;
+    errorMessage.style.fontSize = `${messageFontSize}px`;
+    
+    // Ensure text wraps and fits
     errorMessage.style.maxWidth = '100%';
     errorMessage.style.overflowWrap = 'break-word';
     errorMessage.style.whiteSpace = 'normal';
     
-    // Dynamically adjust font size to fit content without overflow
-    let fontSize = 16; // Start with 1rem (16px)
-    errorMessage.style.fontSize = `${fontSize}px`;
-    
-    // Measure content height and adjust font size or modal size
-    const titleHeight = modalTitle.offsetHeight || 30; // Approximate title height
-    const buttonHeight = okButton.offsetHeight || 40; // Approximate button height
-    const padding = 40; // Account for modal padding (20px top + 20px bottom)
+    // Measure content height and adjust font sizes
+    const titleHeight = modalTitle.offsetHeight || 30;
+    const buttonHeight = okButton.offsetHeight || 40;
+    const padding = 40; // Modal padding (20px top + bottom)
     const maxTextHeight = maxModalHeight - titleHeight - buttonHeight - padding;
     
-    // Adjust font size if text height exceeds available space
-    while (errorMessage.offsetHeight > maxTextHeight && fontSize > 10) {
-        fontSize -= 1;
-        errorMessage.style.fontSize = `${fontSize}px`;
+    // Adjust message font size if needed
+    while (errorMessage.offsetHeight > maxTextHeight && messageFontSize > 10) {
+        messageFontSize -= 1;
+        errorMessage.style.fontSize = `${messageFontSize}px`;
     }
     
-    // If font size is at minimum and still too tall, adjust modal height slightly
-    if (errorMessage.offsetHeight > maxTextHeight) {
-        const requiredHeight = titleHeight + errorMessage.offsetHeight + buttonHeight + padding;
-        modalContent.style.height = `${Math.min(requiredHeight, maxModalHeight)}px`;
+    // Adjust title font size if still overflowing
+    let totalContentHeight = modalTitle.offsetHeight + errorMessage.offsetHeight + buttonHeight + padding;
+    while (totalContentHeight > maxModalHeight && titleFontSize > 12) {
+        titleFontSize -= 1;
+        modalTitle.style.fontSize = `${titleFontSize}px`;
+        totalContentHeight = modalTitle.offsetHeight + errorMessage.offsetHeight + buttonHeight + padding;
     }
     
-    // Adjust button width to fit within modal
+    // Adjust modal height if still necessary
+    if (totalContentHeight > maxModalHeight) {
+        modalContent.style.height = `${Math.min(totalContentHeight, maxModalHeight)}px`;
+    }
+    
+    // Adjust button size
+    let buttonFontSize = 14; // Start with 0.9rem (approx 14px)
+    okButton.style.fontSize = `${buttonFontSize}px`;
     okButton.style.width = '100%';
-    okButton.style.maxWidth = '150px'; // Limit button width for aesthetics
-    okButton.style.margin = '10px auto 0'; // Center button horizontally
+    okButton.style.maxWidth = '150px'; // Limit button width
+    okButton.style.margin = '10px auto 0'; // Center button
+    
+    // Adjust button font size if modal is still too tall
+    totalContentHeight = modalTitle.offsetHeight + errorMessage.offsetHeight + okButton.offsetHeight + padding;
+    while (totalContentHeight > maxModalHeight && buttonFontSize > 10) {
+        buttonFontSize -= 1;
+        okButton.style.fontSize = `${buttonFontSize}px`;
+        totalContentHeight = modalTitle.offsetHeight + errorMessage.offsetHeight + okButton.offsetHeight + padding;
+    }
     
     const closeModal = () => {
         modal.classList.remove('show');
@@ -1369,11 +1408,15 @@ function showErrorModal(message) {
                 <button class="modal-button" id="modal-button">Confirm</button>
                 <button class="modal-button" id="cancel-button">Cancel</button>
             `;
-            // Reset modal content styles
+            // Reset styles
             modalContent.style.maxHeight = '';
+            modalContent.style.maxWidth = '';
             modalContent.style.overflow = '';
             modalContent.style.height = '';
-            errorMessage.style.fontSize = ''; // Reset font size
+            modalContent.style.width = '';
+            modalTitle.style.fontSize = '';
+            errorMessage.style.fontSize = '';
+            okButton.style.fontSize = '';
         }, 300);
     };
     
