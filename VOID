@@ -604,77 +604,74 @@ body {
         font-size: 32px;
     }
 }
-/* Modal base styles */
-#name-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-#name-modal.show {
-    opacity: 1;
-}
-
 .modal-content {
-    background-color: white;
-    padding: 25px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    transform: translateY(-20px);
-    transition: transform 0.3s ease;
-    max-height: 80vh;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-height: 80vh; /* Default max height to 80% of viewport */
+    height: auto; /* Allow modal to size based on content */
+    overflow: hidden; /* Disable scrollbars in all browsers */
+    width: 80%;
+    min-width: 200px;
+    max-width: 400px;
+    padding: 20px;
+    box-sizing: border-box;
+    -ms-overflow-style: none; /* Hide scrollbar in Edge/IE */
+    scrollbar-width: none; /* Hide scrollbar in Firefox */
 }
 
-#name-modal.show .modal-content {
-    transform: translateY(0);
+.modal-content::-webkit-scrollbar {
+    display: none; /* Hide scrollbar in Chrome, Safari, and Edge (WebKit-based) */
 }
 
-.error-message {
-    padding: 15px;
-    margin: 10px 0;
-    color: #721c24;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    border-radius: 4px;
+.modal-content p.error-message {
+    color: var(--text-color);
+    margin: 0 0 15px 0;
+    font-size: 1rem; /* Default font size */
+    text-align: left;
+    width: 100%;
     max-width: 100%;
-    word-wrap: break-word;
+    overflow-wrap: break-word; /* Ensure long words wrap */
+    white-space: normal; /* Allow text to wrap naturally */
+    line-height: 1.4; /* Improve readability */
+    padding: 0 10px; /* Add padding to prevent text from touching edges */
+    box-sizing: border-box;
+}
+
+.modal-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
 }
 
 .modal-button {
-    cursor: pointer;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    font-size: 14px;
-    transition: background-color 0.2s;
+    width: 100%;
+    max-width: 150px; /* Limit button width */
+    padding: 8px 12px;
+    margin: 0 auto; /* Center button */
+    text-align: center;
+    box-sizing: border-box;
 }
 
-.modal-button.primary {
-    background-color: #dc3545;
-    color: white;
-}
-
-.modal-button.primary:hover {
-    background-color: #c82333;
-}
-.modal-content p {
-    color: var(--text-color);
-    margin-bottom: 15px;
-    font-size: 1rem;
-    text-align: left;
-    word-wrap: break-word;
+/* Ensure modal stays within viewport on smaller screens */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 90%;
+        max-width: 320px;
+        padding: 15px;
+    }
+    
+    .modal-content p.error-message {
+        font-size: 0.9rem;
+        padding: 0 8px;
+    }
+    
+    .modal-button {
+        max-width: 120px;
+        font-size: 0.8rem;
+    }
 }
     </style>
 </head>
@@ -1233,50 +1230,45 @@ body {
             }
         }
 
-        function executeScript() {
-            try {
-                if (!isAttached) {
-                    console.warn('Script not attached');
-                    return;
-                }
-                const script = editor.getValue().trim();
-                if (!script) {
-                    console.warn('No script to execute');
-                    return;
-                }
-                fetch('/1', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'script=' + encodeURIComponent(script)
-                }).then(response => {
-                    if (!response.ok) throw new Error(`Execute failed: ${response.status}`);
-                    return response.json();
-                }).then(data => {
-                    console.log('Script executed successfully:', data);
-                }).catch(error => {
-                    console.error('Error executing script:', error);
+function executeScript() {
+    try {
+        if (!isAttached) {
+            showErrorModal('Script not attached. Please attach first.');
+            return;
+        }
+        const script = editor.getValue().trim();
+        if (!script) {
+            showErrorModal('No script to execute');
+            return;
+        }
+        fetch('/1', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'script=' + encodeURIComponent(script)
+        }).then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || `Execute failed: ${response.status}`);
                 });
-            } catch (error) {
-                console.error('Execute script error:', error);
             }
-        }
-
-        function clearText() {
-            try {
-                if (activeTabId && editor) {
-                    editor.setValue('');
-                    const tabData = tabs.find(t => t.id === activeTabId);
-                    if (tabData) {
-                        tabData.content = '';
-                    }
-                    saveTabs();
-                }
-            } catch (error) {
-                console.error('Error clearing text:', error);
+            return response.json();
+        }).then(data => {
+            if (data.status === 'executed') {
+                console.log('Script executed successfully:', data);
+            } else {
+                showErrorModal(data.message || 'Failed to execute script');
             }
-        }
+        }).catch(error => {
+            showErrorModal(error.message || 'Error executing script');
+            console.error('Error executing script:', error);
+        });
+    } catch (error) {
+        showErrorModal(error.message || 'Error executing script');
+        console.error('Execute script error:', error);
+    }
+}
 
 function attachScript() {
     try {
@@ -1320,92 +1312,72 @@ function showErrorModal(message) {
     const input = document.getElementById('name-input');
     const modalButtons = modal.querySelector('.modal-buttons');
     
-    // Store original content to restore later
-    const originalInputDisplay = input.style.display;
-    const originalButtonsHTML = modalButtons.innerHTML;
-    
-    // Update modal content
     modalTitle.textContent = 'Error';
-    input.style.display = 'none';
+    input.style.display = 'none'; // Hide input field
+    modalButtons.innerHTML = `<p class="error-message">${message}</p><button class="modal-button" id="error-ok-button">OK</button>`;
     
-    // Create error message container
-    const errorMessage = document.createElement('div');
-    errorMessage.className = 'error-message';
-    errorMessage.textContent = message;
-    errorMessage.style.cssText = `
-        padding: 15px;
-        margin: 10px 0;
-        color: #721c24;
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 4px;
-        max-width: 100%;
-        word-wrap: break-word;
-    `;
-    
-    // Create OK button
-    const okButton = document.createElement('button');
-    okButton.className = 'modal-button primary';
-    okButton.id = 'error-ok-button';
-    okButton.textContent = 'OK';
-    okButton.style.cssText = `
-        margin-top: 15px;
-        padding: 8px 20px;
-        background-color: #dc3545;
-        color: white;
-    `;
-    
-    // Clear and rebuild modal buttons
-    modalButtons.innerHTML = '';
-    modalButtons.appendChild(errorMessage);
-    modalButtons.appendChild(okButton);
-    
-    // Show modal with animation
     modal.style.display = 'flex';
     setTimeout(() => modal.classList.add('show'), 10);
     
-    // Auto-resize modal based on content
-    const resizeModal = () => {
-        const contentHeight = modalContent.scrollHeight;
-        const maxHeight = window.innerHeight * 0.8;
-        modalContent.style.maxHeight = `${Math.min(contentHeight, maxHeight)}px`;
-        modalContent.style.overflowY = contentHeight > maxHeight ? 'auto' : 'hidden';
-    };
+    const okButton = document.getElementById('error-ok-button');
+    const errorMessage = modalButtons.querySelector('.error-message');
     
-    // Initial resize and add resize observer
-    resizeModal();
-    const resizeObserver = new ResizeObserver(resizeModal);
-    resizeObserver.observe(modalContent);
+    // Set maximum modal height to 80% of viewport height
+    const maxModalHeight = window.innerHeight * 0.8;
+    modalContent.style.maxHeight = `${maxModalHeight}px`;
+    modalContent.style.overflow = 'hidden'; // Disable scrollbars in all browsers
+    modalContent.style.height = 'auto'; // Allow modal to size based on content
     
-    // Close modal function
+    // Ensure text wraps and fits within the modal
+    errorMessage.style.maxWidth = '100%';
+    errorMessage.style.overflowWrap = 'break-word';
+    errorMessage.style.whiteSpace = 'normal';
+    
+    // Dynamically adjust font size to fit content without overflow
+    let fontSize = 16; // Start with 1rem (16px)
+    errorMessage.style.fontSize = `${fontSize}px`;
+    
+    // Measure content height and adjust font size or modal size
+    const titleHeight = modalTitle.offsetHeight || 30; // Approximate title height
+    const buttonHeight = okButton.offsetHeight || 40; // Approximate button height
+    const padding = 40; // Account for modal padding (20px top + 20px bottom)
+    const maxTextHeight = maxModalHeight - titleHeight - buttonHeight - padding;
+    
+    // Adjust font size if text height exceeds available space
+    while (errorMessage.offsetHeight > maxTextHeight && fontSize > 10) {
+        fontSize -= 1;
+        errorMessage.style.fontSize = `${fontSize}px`;
+    }
+    
+    // If font size is at minimum and still too tall, adjust modal height slightly
+    if (errorMessage.offsetHeight > maxTextHeight) {
+        const requiredHeight = titleHeight + errorMessage.offsetHeight + buttonHeight + padding;
+        modalContent.style.height = `${Math.min(requiredHeight, maxModalHeight)}px`;
+    }
+    
+    // Adjust button width to fit within modal
+    okButton.style.width = '100%';
+    okButton.style.maxWidth = '150px'; // Limit button width for aesthetics
+    okButton.style.margin = '10px auto 0'; // Center button horizontally
+    
     const closeModal = () => {
         modal.classList.remove('show');
         setTimeout(() => {
             modal.style.display = 'none';
-            // Restore original content
-            input.style.display = originalInputDisplay;
-            modalButtons.innerHTML = originalButtonsHTML;
-            // Clean up observer
-            resizeObserver.disconnect();
+            input.style.display = 'block'; // Restore input field
+            modalButtons.innerHTML = `
+                <button class="modal-button" id="modal-button">Confirm</button>
+                <button class="modal-button" id="cancel-button">Cancel</button>
+            `;
+            // Reset modal content styles
+            modalContent.style.maxHeight = '';
+            modalContent.style.overflow = '';
+            modalContent.style.height = '';
+            errorMessage.style.fontSize = ''; // Reset font size
         }, 300);
     };
     
-    // Add event listeners
     okButton.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
-    
-    // Add keyboard support
-    document.addEventListener('keydown', function handleKeyDown(e) {
-        if (e.key === 'Escape') {
-            closeModal();
-            document.removeEventListener('keydown', handleKeyDown);
-        } else if (e.key === 'Enter') {
-            closeModal();
-            document.removeEventListener('keydown', handleKeyDown);
-        }
-    });
 }
 
         window.addEventListener('load', function() {
