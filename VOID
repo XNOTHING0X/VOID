@@ -1,3 +1,4 @@
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1315,7 +1316,18 @@ function attachScript() {
         console.error('Attach script error:', error);
     }
 }
-
+function clearText() {
+    if (!activeTabId || !editor) {
+        return;
+    }
+    const tabData = tabs.find(t => t.id === activeTabId);
+    if (tabData) {
+        tabData.content = '';
+        editor.setValue('');
+        saveTabs();
+    } else {
+    }
+}
 function showErrorModal(message) {
     const modal = document.getElementById('name-modal');
     const modalContent = modal.querySelector('.modal-content');
