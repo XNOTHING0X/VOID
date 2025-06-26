@@ -1199,7 +1199,16 @@ function resizeEditor() {
                 setTimeout(initializeMonacoEditor, 1000);
             }
         }
-
+function clearText() {
+    if (editor && activeTabId) {
+        const tabData = tabs.find(t => t.id === activeTabId);
+        if (tabData) {
+            editor.setValue(''); 
+            tabData.content = '';
+            saveTabs(); 
+        }
+    }
+}
 function executeScript() {
     try {
         if (!isAttached) {
